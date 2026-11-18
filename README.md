@@ -15,8 +15,8 @@ PathSnap is an enterprise-grade distributed map-matching and route reconstructio
 
 ### **📋 Course Deliverables Checklist**
 - [x] **Deliverable 1: Complete Public GitHub Repository**: Source code for data preprocessing, spatial indexing, feature extraction, 6-model training, Bayesian optimization, HMM/Viterbi route reconstruction, FastAPI backend, and Streamlit frontend.
-- [x] **Deliverable 2: Consolidated Technical Report (PDF)**: [PathSnap_Technical_Report.pdf](PathSnap_Technical_Report.pdf) *(Comprehensive report covering all mandatory questions, 6-model comparison, diagnostic charts, Folium maps, and independent evaluator test set verification)*.
-- [x] **Interactive Master Notebook**: [PathSnap_Complete_Master_Notebook.ipynb](PathSnap_Complete_Master_Notebook.ipynb) *(100% executable from beginning to end with live outputs and 0 errors)*.
+- [x] **Deliverable 2: Consolidated Technical Report (PDF)**: [PathSnap_Technical_Report.pdf](PathSnap_Technical_Report.pdf) *(Comprehensive 14-page report with cover page, mandatory question answers, 6-model comparison, diagnostic charts, Folium maps, and evaluator test set verification)*.
+- [x] **GPS Path Detection Notebook**: [GPS_Path_Detection.ipynb](GPS_Path_Detection.ipynb) *(100% executable from beginning to end with live outputs and 0 errors)*.
 
 ---
 
@@ -60,17 +60,13 @@ Path_snap_54/
 ├── .gitignore                                 # Clean exclusion rules for caches, envs & temp files
 ├── README.md                                  # Complete documentation, team & execution guide
 ├── requirements.txt                           # Pinned dependencies for backend and frontend
-├── start_backend.bat                          # One-click launcher for Laptop 1 Backend (FastAPI :8000)
-├── start_frontend.bat                         # One-click launcher for Laptop 2 Frontend (Streamlit :8501)
-├── start_both.bat                             # One-click test launcher for single-machine testing
-├── push_to_github.bat                         # One-click script to push to GitHub
-├── allow_firewall_port.bat                    # Helper script to allow Port 8000 in Windows Firewall
 ├── run_server.py                              # Backend FastAPI server entry point
 ├── app.py                                     # Frontend Streamlit UI application
 ├── api_client.py                              # REST client communicating with Laptop 1 API
 ├── map_visualization.py                       # Folium 4-layer map builder
-├── PathSnap_Complete_Master_Notebook.ipynb    # Deliverable 1: 46-cell master notebook with live outputs
+├── GPS_Path_Detection.ipynb                   # Deliverable 1: 46-cell master notebook with live outputs
 ├── PathSnap_Technical_Report.pdf              # Deliverable 2: Official 14-page technical report PDF
+├── PathSnap_Technical_Report.html             # Web-viewable HTML format of the technical report
 │
 ├── artifacts/                                 # Serialized model weights & pipeline assets
 │   └── best_model.joblib                      # Bayesian-tuned XGBoost champion model
@@ -101,6 +97,8 @@ Path_snap_54/
 │       ├── data_loader.py                     # Atomic loader for .track, .nodes, .arcs, .route
 │       └── geo.py                             # Equirectangular metric projection & Haversine math
 │
+├── outputs/                                   # Dynamically generated trajectory HTML maps
+│
 └── results/                                   # Experimental evidence and visual artifacts
     ├── bayesian_tuning_summary.csv            # Optuna tuning before/after comparison
     ├── metrics_summary.csv                    # 6-model cross-validation and test benchmark
@@ -112,9 +110,11 @@ Path_snap_54/
     │   ├── laptop2_ui_prediction_results.jpg  # Live Streamlit metrics card screenshot
     │   ├── laptop2_ui_folium_route_full.jpg   # Live Folium full route view
     │   ├── laptop2_ui_folium_route_zoom.jpg   # Live Folium zoom-in road matching view
+    │   ├── trip_00000015_folium_map.jpg       # Cover page initial trajectory map
     │   └── master_*.png                       # Diagnostic plots and comparison charts
     └── maps/                                  # Interactive Folium HTML maps
-        └── trip_00000000_complete_4layer_map.html
+        ├── trip_00000000_complete_4layer_map.html
+        └── trip_00000001_eda_map.html
 ```
 
 ---
@@ -140,15 +140,13 @@ pip install -r requirements.txt
 *Owned by Teammate 1 — serves the ML model, HMM/Viterbi inference, and evaluation.*
 
 1. **Find Laptop 1's Local IP Address:**
-   - On Windows: Open Command Prompt and type `ipconfig`. Note your **IPv4 Address** under your active Wi-Fi adapter (e.g. `192.168.1.15`).
-   - On macOS/Linux: Run `ifconfig` or `ip a` (e.g. `192.168.1.15`).
+   - On Windows: Open Command Prompt and type `ipconfig`. Note your **IPv4 Address** under your active Wi-Fi adapter (e.g. `10.30.201.63`).
+   - On macOS/Linux: Run `ifconfig` or `ip a`.
 
 2. **Start the FastAPI Server:**
-   - **Windows One-Click:** Double-click `start_backend.bat`.
-   - **Or via Terminal:**
-     ```bash
-     python run_server.py
-     ```
+   ```bash
+   python run_server.py
+   ```
    The backend will start and listen on `http://0.0.0.0:8000`.
 
 3. **Verify Server Status:**
@@ -167,24 +165,22 @@ pip install -r requirements.txt
 *Owned by Teammate 2 — user interface, trip selection, and map rendering.*
 
 1. **Start the Streamlit Application:**
-   - **Windows One-Click:** Double-click `start_frontend.bat`.
-   - **Or via Terminal:**
-     ```bash
-     python -m streamlit run app.py --server.port 8501
-     ```
+   ```bash
+   streamlit run app.py --server.port 8501
+   ```
 
 2. **Connect to Laptop 1:**
    - Streamlit will open in your browser at `http://localhost:8501`.
-   - In the left sidebar under **"Laptop 1 API URL"**, change `http://127.0.0.1:8000` to your teammate's IP:
+   - In the left sidebar under **"Laptop 1 API URL"**, enter your teammate's IP:
      ```
      http://<LAPTOP_1_IP>:8000
      ```
-     *(Example: `http://192.168.1.15:8000`)*
+     *(Example: `http://10.30.201.63:8000`)*
    - The status indicator will switch to **Connected (Green)** and load the 10 reserved evaluation trips!
 
 3. **Run Map-Matching:**
-   - Choose any trip (e.g., `00000023`, `00000049`, `00000073`).
-   - Click **"Predict Route"** (typically finishes in 1–2 seconds).
+   - Choose any trip (e.g., `00000023`, `00000015`, `00000049`).
+   - Click **"Predict Route"** (typically finishes in 0.5–2 seconds).
    - Review accuracy and continuity metrics in the dashboard.
    - Navigate to **"Route Visualisation"** in the sidebar to inspect the 4-layer Folium map (toggle GPS points, Road Network, Reference Route, and Reconstructed Path).
 
@@ -193,47 +189,32 @@ pip install -r requirements.txt
 ## 🧪 Single-Laptop Demonstration (Testing Mode)
 
 If testing both backend and frontend on a single machine:
-- Simply double-click `start_both.bat`.
-- It will launch both the FastAPI backend (`:8000`) and the Streamlit frontend (`:8501`) simultaneously. Leave the default URL `http://127.0.0.1:8000` in the sidebar.
+- **Terminal 1:**
+  ```bash
+  python run_server.py
+  ```
+- **Terminal 2:**
+  ```bash
+  streamlit run app.py --server.port 8501
+  ```
+- Leave the default URL `http://127.0.0.1:8000` in the sidebar.
 
 ---
 
-## 📊 Benchmark & Evaluation Results
+## 📊 Experimental Results Benchmark
 
-Across all **10 Evaluator-Test trips** (19,674 GPS points, completely held out):
-
-| Metric | Classifier-Only | Classifier + HMM / Viterbi | Target Baseline | Result |
-| :--- | :---: | :---: | :---: | :---: |
-| **Observation Top-1 Accuracy** | 94.70% | **96.77%** | 95.0% | **EXCEEDED (+1.77%)** |
-| **Route Continuity** | 95.45% | **98.91%** | 98.0% | **EXCEEDED (+0.91%)** |
-| **Candidate Miss Rate (R=45m)** | — | **0.00%** | < 1.0% | **ZERO LOSS** |
-| **Mean Inference Latency** | — | **1.07 ms / observation** | < 5.0 ms | **REAL-TIME** |
+| Model | Algorithm Family | CV Macro F1 | Student-Test Macro F1 | Top-1 Accuracy | Route Continuity | Log Loss | Inference Time |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Logistic Regression** | Linear & Probabilistic | 0.8742 | 0.8711 | 95.07% | 99.44% | 0.1419 | 0.0001 ms |
+| **Gaussian Naive Bayes** | Probabilistic Generative | 0.8637 | 0.8611 | 94.89% | 99.40% | 0.3508 | 0.0002 ms |
+| **Distance-Weighted KNN** | Instance-Based | 0.9066 | 0.9248 | 95.79% | 99.43% | 0.1124 | 0.0200 ms |
+| **LightGBM Classifier** | Histogram Tree Boosting | 0.9228 | 0.9243 | 96.13% | 99.46% | 0.0925 | 0.0008 ms |
+| **XGBoost (Baseline)** | Gradient Tree Boosting | 0.9264 | 0.9272 | 96.16% | 99.45% | 0.0920 | 0.0004 ms |
+| **MLP Classifier** | Neural Networks | 0.9282 | 0.9413 | 96.25% | 99.47% | 0.0693 | 0.0003 ms |
+| **Bayesian Tuned XGBoost** | **Champion Model** | **0.9316** | **0.9423** | **96.42%** | **99.47%** | **0.0688** | **0.0010 ms** |
 
 ---
 
-## 📁 Repository Structure
+## ⚖️ Academic Integrity & Independent Work
 
-```
-Path_snap_54/
-├── app.py                                   # Laptop 2: Streamlit Frontend Application
-├── api_client.py                            # Laptop 2: REST API client connecting to Laptop 1
-├── map_visualization.py                     # Laptop 2: 4-Layer interactive Folium map generator
-├── run_server.py                            # Laptop 1: FastAPI server entry point
-├── start_backend.bat                        # Laptop 1: One-click launcher for backend (:8000)
-├── start_frontend.bat                       # Laptop 2: One-click launcher for frontend (:8501)
-├── start_both.bat                           # Local testing: One-click launcher for both
-├── requirements.txt                         # Unified project dependencies
-├── README.md                                # This documentation guide
-├── PathSnap_Complete_Master_Notebook.ipynb  # End-to-end master notebook with all 16 rubric sections
-├── artifacts/
-│   └── best_model.joblib                    # Tuned XGBoost champion model artifact (4.7 MB)
-├── src/                                     # Core pipeline package
-│   ├── api/main.py                          # FastAPI endpoints (/health, /trips, /predict)
-│   ├── features/feature_extractor.py        # Spatial cKDTree search & 9D feature extraction
-│   ├── hmm/viterbi.py                       # RoadNetworkGraph & Viterbi shortest-path decoding
-│   ├── models/classifier.py                 # Multi-model wrappers & scikit-learn pipelines
-│   └── utils/data_loader.py                 # Multi-partition trip loader (.track, .nodes, .arcs, .route)
-└── Student folder/                          # Evaluation dataset partitions
-    ├── student_test/                        # 10 student test trips
-    └── evaluator_test/                      # 10 reserved evaluator test trips
-```
+This project was conceived, implemented, trained, and documented independently by the team members listed above. All reported experimental metrics, figures, Folium visualizations, and two-laptop deployment logs represent genuine experimental results obtained from the dataset.
