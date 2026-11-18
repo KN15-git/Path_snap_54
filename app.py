@@ -150,7 +150,8 @@ elif page == "Route Visualisation":
             route_map = create_route_map(
                 gps_points=result.get("gps_points", []),
                 predicted_route=result.get("predicted_route", []),
-                road_network=result.get("road_network")
+                road_network=result.get("road_network"),
+                reference_route=result.get("reference_route", [])
             )
 
             st_folium(

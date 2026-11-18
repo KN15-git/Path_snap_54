@@ -32,15 +32,19 @@ def create_route_map(
     gps_points,
     predicted_route,
     road_network=None,
+    reference_route=None,
     output_path=None
 ):
     gps_points = validate_points(gps_points)
     predicted_route = validate_points(predicted_route)
+    reference_route = validate_points(reference_route)
 
-    all_points = gps_points + predicted_route
+    all_points = gps_points + predicted_route + reference_route
 
     if not all_points:
-        raise ValueError("No valid GPS or route coordinates available.")
+        raise ValueError(
+            "No valid GPS or route coordinates available."
+        )
 
     center_lat = sum(p[0] for p in all_points) / len(all_points)
     center_lon = sum(p[1] for p in all_points) / len(all_points)
@@ -52,6 +56,7 @@ def create_route_map(
     )
 
     if isinstance(road_network, dict) and road_network.get("features"):
+
         roads_layer = folium.FeatureGroup(
             name="Road Network",
             show=True
@@ -75,6 +80,7 @@ def create_route_map(
     )
 
     for index, point in enumerate(gps_points):
+
         folium.CircleMarker(
             location=point,
             radius=4,
@@ -87,7 +93,43 @@ def create_route_map(
 
     gps_layer.add_to(route_map)
 
+    if reference_route:
+
+        reference_layer = folium.FeatureGroup(
+            name="Reference Route",
+            show=True
+        )
+
+        folium.PolyLine(
+            locations=reference_route,
+            color="#DC2626",
+            weight=5,
+            opacity=0.85,
+            dash_array="8, 6",
+            tooltip="Reference Route (Ground Truth)"
+        ).add_to(reference_layer)
+
+        reference_layer.add_to(route_map)
+
+
+    if reference_route:
+        reference_layer = folium.FeatureGroup(
+        name="Reference Route",
+        show=True
+    )
+
+    folium.PolyLine(
+        locations=reference_route,
+        color="#DC2626",
+        weight=5,
+        opacity=0.8,
+        tooltip="Reference Route"
+    ).add_to(reference_layer)
+
+    reference_layer.add_to(route_map)
+
     if predicted_route:
+
         predicted_layer = folium.FeatureGroup(
             name="Predicted Route",
             show=True
@@ -104,13 +146,19 @@ def create_route_map(
         folium.Marker(
             predicted_route[0],
             tooltip="Predicted Route Start",
-            icon=folium.Icon(color="green", icon="play")
+            icon=folium.Icon(
+                color="green",
+                icon="play"
+            )
         ).add_to(predicted_layer)
 
         folium.Marker(
             predicted_route[-1],
             tooltip="Predicted Route End",
-            icon=folium.Icon(color="red", icon="stop")
+            icon=folium.Icon(
+                color="red",
+                icon="stop"
+            )
         ).add_to(predicted_layer)
 
         predicted_layer.add_to(route_map)
@@ -139,6 +187,10 @@ def create_route_map(
         Original GPS Observations<br>
         <span style="color:#F59E0B;">━</span>
         Road Network<br>
+        <span style="color:#DC2626;">━</span>
+        Reference Route<br>
+        <span style="color:#DC2626;">┅</span>
+        Reference Route<br>
         <span style="color:#16A34A;">━</span>
         Predicted Route
     </div>
@@ -149,6 +201,7 @@ def create_route_map(
     )
 
     if output_path:
+
         os.makedirs(
             os.path.dirname(output_path) or ".",
             exist_ok=True
