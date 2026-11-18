@@ -5,6 +5,13 @@ PathSnap is an enterprise-grade distributed map-matching and route reconstructio
 
 ---
 
+### **📋 Course Deliverables Checklist**
+- [x] **Deliverable 1: Complete Public GitHub Repository**: Source code for data preprocessing, spatial indexing, feature extraction, 6-model training, Bayesian optimization, HMM/Viterbi route reconstruction, FastAPI backend, and Streamlit frontend.
+- [x] **Deliverable 2: Consolidated Technical Report (PDF)**: [PathSnap_Technical_Report.pdf](PathSnap_Technical_Report.pdf) *(Comprehensive report covering all mandatory questions, 6-model comparison, diagnostic charts, Folium maps, and independent evaluator test set verification)*.
+- [x] **Interactive Master Notebook**: [PathSnap_Complete_Master_Notebook.ipynb](PathSnap_Complete_Master_Notebook.ipynb) *(100% executable from beginning to end with live outputs and 0 errors)*.
+
+---
+
 ## 🏛️ System Architecture
 
 PathSnap is built as a **two-tier distributed client-server architecture**:
