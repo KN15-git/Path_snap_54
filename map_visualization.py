@@ -1,7 +1,5 @@
-
 import os
 import math
-
 import folium
 
 
@@ -56,7 +54,6 @@ def create_route_map(
     )
 
     if isinstance(road_network, dict) and road_network.get("features"):
-
         roads_layer = folium.FeatureGroup(
             name="Road Network",
             show=True
@@ -74,27 +71,37 @@ def create_route_map(
 
         roads_layer.add_to(route_map)
 
-    gps_layer = folium.FeatureGroup(
-        name="Original GPS Observations",
-        show=True
-    )
+    if gps_points:
+        gps_layer = folium.FeatureGroup(
+            name="Original GPS Observations",
+            show=True
+        )
 
-    for index, point in enumerate(gps_points):
-
-        folium.CircleMarker(
-            location=point,
-            radius=4,
+        # Render full noisy GPS trace + markers (sampled if > 400 pts for browser responsiveness)
+        folium.PolyLine(
+            locations=gps_points,
             color="#2563EB",
-            fill=True,
-            fill_color="#2563EB",
-            fill_opacity=0.8,
-            tooltip=f"GPS Observation {index + 1}"
+            weight=2,
+            opacity=0.45,
+            tooltip="Raw GPS Trajectory"
         ).add_to(gps_layer)
 
-    gps_layer.add_to(route_map)
+        step = max(1, len(gps_points) // 350)
+        for index in range(0, len(gps_points), step):
+            point = gps_points[index]
+            folium.CircleMarker(
+                location=point,
+                radius=3.5,
+                color="#2563EB",
+                fill=True,
+                fill_color="#2563EB",
+                fill_opacity=0.8,
+                tooltip=f"GPS Observation {index + 1}"
+            ).add_to(gps_layer)
+
+        gps_layer.add_to(route_map)
 
     if reference_route:
-
         reference_layer = folium.FeatureGroup(
             name="Reference Route",
             show=True
@@ -111,25 +118,7 @@ def create_route_map(
 
         reference_layer.add_to(route_map)
 
-
-    if reference_route:
-        reference_layer = folium.FeatureGroup(
-        name="Reference Route",
-        show=True
-    )
-
-    folium.PolyLine(
-        locations=reference_route,
-        color="#DC2626",
-        weight=5,
-        opacity=0.8,
-        tooltip="Reference Route"
-    ).add_to(reference_layer)
-
-    reference_layer.add_to(route_map)
-
     if predicted_route:
-
         predicted_layer = folium.FeatureGroup(
             name="Predicted Route",
             show=True
@@ -140,7 +129,7 @@ def create_route_map(
             color="#16A34A",
             weight=5,
             opacity=0.9,
-            tooltip="Predicted Route"
+            tooltip="Predicted Route (ML + HMM/Viterbi)"
         ).add_to(predicted_layer)
 
         folium.Marker(
@@ -187,10 +176,8 @@ def create_route_map(
         Original GPS Observations<br>
         <span style="color:#F59E0B;">━</span>
         Road Network<br>
-        <span style="color:#DC2626;">━</span>
-        Reference Route<br>
         <span style="color:#DC2626;">┅</span>
-        Reference Route<br>
+        Reference Route (if shown)<br>
         <span style="color:#16A34A;">━</span>
         Predicted Route
     </div>
@@ -201,12 +188,10 @@ def create_route_map(
     )
 
     if output_path:
-
         os.makedirs(
             os.path.dirname(output_path) or ".",
             exist_ok=True
         )
-
         route_map.save(output_path)
 
     return route_map

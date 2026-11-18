@@ -1,10 +1,11 @@
-
 import os
-
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 API_BASE_URL = os.getenv(
     "API_BASE_URL",
@@ -12,28 +13,33 @@ API_BASE_URL = os.getenv(
 ).rstrip("/")
 
 
-def check_api_connection():
+def get_base_url(override_url=None):
+    if override_url and str(override_url).strip():
+        return str(override_url).strip().rstrip("/")
+    return API_BASE_URL
+
+
+def check_api_connection(override_url=None):
+    base_url = get_base_url(override_url)
     try:
         response = requests.get(
-            f"{API_BASE_URL}/health",
+            f"{base_url}/health",
             timeout=5
         )
-
         response.raise_for_status()
-
         return True, response.json()
 
     except requests.RequestException as error:
         return False, str(error)
 
 
-def get_evaluation_trips():
+def get_evaluation_trips(override_url=None):
+    base_url = get_base_url(override_url)
     try:
         response = requests.get(
-            f"{API_BASE_URL}/trips",
+            f"{base_url}/trips",
             timeout=10
         )
-
         response.raise_for_status()
         data = response.json()
 
@@ -43,13 +49,11 @@ def get_evaluation_trips():
             raise ValueError("Unexpected trip response format")
 
         trip_ids = []
-
         for trip in trips:
             if isinstance(trip, str):
                 trip_ids.append(trip)
             elif isinstance(trip, dict):
                 trip_id = trip.get("trip_id") or trip.get("id")
-
                 if trip_id is not None:
                     trip_ids.append(str(trip_id))
 
@@ -60,3 +64,22 @@ def get_evaluation_trips():
 
     except (requests.RequestException, ValueError) as error:
         return [], str(error)
+
+
+def predict_route(trip_id, override_url=None):
+    """
+    Sends the selected evaluation trip ID to Laptop 1's FastAPI backend
+    to run preprocessing, candidate generation, ML classification,
+    HMM/Viterbi route reconstruction, and server-side evaluation.
+    """
+    base_url = get_base_url(override_url)
+    try:
+        response = requests.post(
+            f"{base_url}/predict/{trip_id}",
+            timeout=60
+        )
+        response.raise_for_status()
+        return response.json(), None
+
+    except requests.RequestException as error:
+        return None, str(error)
