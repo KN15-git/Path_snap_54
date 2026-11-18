@@ -1,6 +1,14 @@
 # 🗺️ PathSnap: Distributed Map-Matching & Route Reconstruction
 ### **UE24CS352A Machine Learning — Department of Computer Science & Engineering, PES University**
 
+### 👥 Team Members
+| Name | SRN | Role |
+| :--- | :--- | :--- |
+| **KRUTHIKNANDAN R** | `PES1UG24CS239` | Laptop 1 Host & API Lead (FastAPI, Model Training & Inference Pipeline) |
+| **Jiya Datta Banik** | `PES1UG24CS202` | Data Exploration, Spatial Preprocessing & Feature Extraction |
+| **JOEL THOMAS** | `PES1UG24CS203` | Laptop 2 Frontend Lead (Streamlit UI & Network Client Integration) |
+| **KRRISH AARYAN** | `PES1UG24CS238` | Interactive Folium Geographical Visualizations & Model Evaluation |
+
 PathSnap is an enterprise-grade distributed map-matching and route reconstruction system designed to reconstruct realistic vehicle trajectories along an underlying road network from noisy, sparse GPS observations.
 
 ---
