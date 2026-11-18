@@ -1,9 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
 .venv/
 venv/
-__pycache__/
-*.pyc
+env/
+ENV/
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints
+
+# Environment Variables & Secrets
 .env
 .streamlit/secrets.toml
+
+# Operating System Files
 .DS_Store
+Thumbs.db
+desktop.ini
+
+# Transient Outputs
 outputs/
-*.html
+*.log

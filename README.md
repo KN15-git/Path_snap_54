@@ -52,6 +52,73 @@ PathSnap is built as a **two-tier distributed client-server architecture**:
 
 ---
 
+## 📁 Repository Directory Structure
+
+```text
+Path_snap_54/
+├── .env.example                               # Network configuration template (Laptop 1 IP)
+├── .gitignore                                 # Clean exclusion rules for caches, envs & temp files
+├── README.md                                  # Complete documentation, team & execution guide
+├── requirements.txt                           # Pinned dependencies for backend and frontend
+├── start_backend.bat                          # One-click launcher for Laptop 1 Backend (FastAPI :8000)
+├── start_frontend.bat                         # One-click launcher for Laptop 2 Frontend (Streamlit :8501)
+├── start_both.bat                             # One-click test launcher for single-machine testing
+├── push_to_github.bat                         # One-click script to push to GitHub
+├── allow_firewall_port.bat                    # Helper script to allow Port 8000 in Windows Firewall
+├── run_server.py                              # Backend FastAPI server entry point
+├── app.py                                     # Frontend Streamlit UI application
+├── api_client.py                              # REST client communicating with Laptop 1 API
+├── map_visualization.py                       # Folium 4-layer map builder
+├── PathSnap_Complete_Master_Notebook.ipynb    # Deliverable 1: 46-cell master notebook with live outputs
+├── PathSnap_Technical_Report.pdf              # Deliverable 2: Official 14-page technical report PDF
+│
+├── artifacts/                                 # Serialized model weights & pipeline assets
+│   └── best_model.joblib                      # Bayesian-tuned XGBoost champion model
+│
+├── Student folder/                            # Evaluation datasets
+│   ├── student_test/                          # 10 student-testing benchmark trips
+│   └── evaluator_test/                        # 10 held-out evaluator evaluation trips
+│
+├── src/                                       # Modular Python package
+│   ├── __init__.py
+│   ├── api/                                   # FastAPI REST microservice
+│   │   ├── __init__.py
+│   │   └── main.py                            # Endpoints: /health, /trips, /predict/{trip_id}
+│   ├── features/                              # Spatial indexing & 9D feature engineering
+│   │   ├── __init__.py
+│   │   ├── candidate_generator.py             # cKDTree candidate generation with adaptive radius
+│   │   └── feature_extractor.py               # Vector projections and 9D feature derivation
+│   ├── hmm/                                   # Probabilistic sequence reconstruction
+│   │   ├── __init__.py
+│   │   └── viterbi.py                         # RoadNetworkGraph and HMMViterbiDecoder
+│   ├── models/                                # Model training and experiment scripts
+│   │   ├── __init__.py
+│   │   ├── baseline_models.py                 # 6 model family definitions
+│   │   ├── bayesian_tune.py                   # Optuna TPE hyperparameter optimizer
+│   │   └── train_eval.py                      # GroupKFold training and evaluation pipeline
+│   └── utils/                                 # Utilities and mathematical projections
+│       ├── __init__.py
+│       ├── data_loader.py                     # Atomic loader for .track, .nodes, .arcs, .route
+│       └── geo.py                             # Equirectangular metric projection & Haversine math
+│
+└── results/                                   # Experimental evidence and visual artifacts
+    ├── bayesian_tuning_summary.csv            # Optuna tuning before/after comparison
+    ├── metrics_summary.csv                    # 6-model cross-validation and test benchmark
+    ├── evaluator_test_metrics_summary.csv     # 10 held-out evaluator trips performance
+    ├── hmm_ablation_10trips.csv               # Classifier vs. HMM ablation table
+    ├── figures/                               # 20+ diagnostic charts, training curves & UI logs
+    │   ├── laptop1_cmd_api_response.jpg       # Live CMD screenshot of Laptop 1 backend
+    │   ├── laptop2_ui_connected.jpg           # Live Streamlit screenshot showing connection
+    │   ├── laptop2_ui_prediction_results.jpg  # Live Streamlit metrics card screenshot
+    │   ├── laptop2_ui_folium_route_full.jpg   # Live Folium full route view
+    │   ├── laptop2_ui_folium_route_zoom.jpg   # Live Folium zoom-in road matching view
+    │   └── master_*.png                       # Diagnostic plots and comparison charts
+    └── maps/                                  # Interactive Folium HTML maps
+        └── trip_00000000_complete_4layer_map.html
+```
+
+---
+
 ## 🚀 Quick Setup Instructions
 
 ### Prerequisites
