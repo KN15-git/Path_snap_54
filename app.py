@@ -1,12 +1,14 @@
 
 import streamlit as st
+
 from streamlit_folium import st_folium
-from map_visualization import create_route_map
 
 from api_client import (
     check_api_connection,
     get_evaluation_trips
 )
+
+from map_visualization import create_route_map
 
 
 st.set_page_config(
@@ -17,115 +19,194 @@ st.set_page_config(
 
 
 st.title("🗺️ PathSnap")
-st.subheader(
-    "Distributed Map-Matching & Route Reconstruction"
+st.caption(
+    "DISTRIBUTED MAP-MATCHING & ROUTE RECONSTRUCTION"
 )
 
 st.write(
-    "Reconstructing realistic vehicle trajectories "
+    "Reconstruct realistic vehicle trajectories "
     "from noisy GPS observations."
 )
 
 st.divider()
 
 
-st.header("Evaluation Dashboard")
+with st.sidebar:
+    st.title("🗺️ PathSnap")
+    st.caption("Evaluation Control Panel")
 
+    st.divider()
 
-st.subheader("Backend Connection")
+    page = st.radio(
+        "Navigation",
+        [
+            "Dashboard",
+            "Route Visualisation",
+            "Evaluation Results"
+        ]
+    )
+
+    st.divider()
+
+    st.caption("Laptop 2 | User Interface")
+
 
 connected, health_data = check_api_connection()
 
-if connected:
-    st.success("Laptop 1 API is connected.")
 
-    with st.expander("API health information"):
-        st.json(health_data)
+if page == "Dashboard":
 
-else:
-    st.error("Laptop 1 API is currently unavailable.")
+    st.header("Evaluation Dashboard")
 
-    st.caption(
-        "Start the FastAPI server on Laptop 1 "
-        "and check the API address in the .env file."
-    )
+    col1, col2 = st.columns(2)
 
+    with col1:
+        st.metric(
+            "Backend Status",
+            "Connected" if connected else "Offline"
+        )
 
-st.divider()
+    with col2:
+        st.metric(
+            "Evaluation Trips",
+            "10 reserved",
+            help="The actual trip list will be fetched from Laptop 1."
+        )
 
+    if connected:
+        st.success("Laptop 1 API is responding.")
+    else:
+        st.warning(
+            "Laptop 1 API is not connected. "
+            "Trip selection will be available once the backend starts."
+        )
 
-st.subheader("Evaluation Trip Selection")
+    st.divider()
 
-if connected:
+    st.subheader("Select Evaluation Trip")
 
-    trips, error = get_evaluation_trips()
+    if connected:
 
-    if error:
-        st.error(f"Could not retrieve trips: {error}")
+        trips, error = get_evaluation_trips()
+
+        if error:
+            st.error(error)
+
+        else:
+            selected_trip = st.selectbox(
+                "Choose a trip",
+                trips
+            )
+
+            st.write(f"Selected Trip: **{selected_trip}**")
+
+            st.button(
+                "Predict Route",
+                disabled=True,
+                use_container_width=True,
+                help="Prediction will be enabled after the API contract is confirmed."
+            )
+
+            st.info(
+                "Prediction integration is being prepared. "
+                "The button will be connected to Laptop 1's API."
+            )
 
     else:
-        st.write(
-            f"Available evaluation trips: {len(trips)}"
+        st.info(
+            "Waiting for the ten reserved evaluation trips "
+            "from Laptop 1."
         )
 
-        selected_trip = st.selectbox(
-            "Select an evaluation trip",
-            trips
+    st.divider()
+
+    st.subheader("System Architecture")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.info(
+            "**Laptop 1 – Backend**\n\n"
+            "Model, HMM/Viterbi, road network and FastAPI."
         )
 
-        st.info(f"Selected trip: {selected_trip}")
-
-        st.caption(
-            "Route prediction will be enabled "
-            "after the backend prediction interface "
-            "is finalised."
+    with col2:
+        st.info(
+            "**Laptop 2 – Frontend**\n\n"
+            "Streamlit interface, API communication "
+            "and Folium visualisation."
         )
 
-else:
-    st.warning(
-        "Trip selection will become available "
-        "when Laptop 1's API is running."
-    )
 
+elif page == "Route Visualisation":
 
-st.divider()
+    st.header("Interactive Route Visualisation")
 
-st.header("Route Visualisation")
+    result = st.session_state.get("prediction_result")
 
-if "prediction_result" in st.session_state:
+    if result:
 
-    result = st.session_state["prediction_result"]
+        try:
+            route_map = create_route_map(
+                gps_points=result.get("gps_points", []),
+                predicted_route=result.get("predicted_route", []),
+                road_network=result.get("road_network")
+            )
 
-    try:
-        route_map = create_route_map(
-            gps_points=result.get("gps_points", []),
-            predicted_route=result.get("predicted_route", []),
-            road_network=result.get("road_network")
+            st_folium(
+                route_map,
+                width=None,
+                height=600,
+                key="pathsnap_map"
+            )
+
+        except ValueError as error:
+            st.error(str(error))
+
+    else:
+        st.info(
+            "The interactive map will appear here "
+            "after a successful route prediction."
         )
 
-        st_folium(
-            route_map,
-            width=None,
-            height=550,
-            key="pathsnap_map"
+
+elif page == "Evaluation Results":
+
+    st.header("Evaluation Results")
+
+    result = st.session_state.get("prediction_result")
+
+    if result:
+
+        metrics = result.get("metrics", {})
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric(
+                "Accuracy",
+                metrics.get("accuracy", "N/A")
+            )
+
+        with col2:
+            st.metric(
+                "Prediction Time",
+                metrics.get("prediction_time", "N/A")
+            )
+
+        with col3:
+            st.metric(
+                "Distance Error",
+                metrics.get("distance_error", "N/A")
+            )
+
+        st.json(metrics)
+
+    else:
+        st.info(
+            "Evaluation metrics will be displayed "
+            "after receiving the actual prediction response."
         )
-
-    except ValueError as error:
-        st.warning(str(error))
-
-else:
-    st.info(
-        "Select an evaluation trip and run prediction "
-        "to display its geographical map."
-    )
-
-
-st.header("Evaluation Results")
-
-st.info(
-    "Prediction metrics will appear here "
-    "after receiving the actual API response."
-)
 
 
 st.divider()
