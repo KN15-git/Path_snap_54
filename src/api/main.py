@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 import joblib
 import numpy as np
+import xgboost as xgb
+import lightgbm as lgb
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel

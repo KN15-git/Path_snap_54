@@ -1,0 +1,7 @@
+Model,Algorithm Family,Train Macro F1,CV Macro F1,Student-Test Macro F1,Precision,Recall,Log Loss,Classifier Top-1 Acc (%),Top-1 Accuracy (%),Strict Pointwise Acc (%),Route Continuity (%),Inference Time (ms),Train Time (s)
+Logistic Regression,Linear and Probabilistic,0.8767,0.8742,0.8711,0.6474,0.9788,0.1419,93.29,95.07,93.19,99.44,0.0001,2.35
+Gaussian Naive Bayes,Probabilistic (Generative),0.8683,0.8637,0.8611,0.6389,0.9428,0.3508,92.69,94.89,93.07,99.4,0.0002,0.66
+Distance-Weighted KNN,Instance-Based,1.0,0.9066,0.9248,0.8659,0.8677,0.1124,92.31,95.79,93.68,99.43,0.0199,1.47
+LightGBM Classifier,Ensemble / Histogram Tree,0.9403,0.9228,0.9243,0.7926,0.9585,0.0925,92.28,96.13,94.65,99.46,0.0007,3.63
+XGBoost Classifier,Gradient Boosting,0.9422,0.9264,0.9272,0.8006,0.9593,0.092,92.35,96.16,94.62,99.45,0.0003,7.03
+MLP Classifier,Neural Networks,0.9409,0.9282,0.9413,0.8987,0.8933,0.0693,92.99,96.25,94.51,99.47,0.0003,26.26

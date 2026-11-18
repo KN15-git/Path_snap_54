@@ -1,0 +1,3 @@
+Configuration,CV Macro F1,Student-Test Macro F1,Student-Test Log Loss,Classifier Top-1 Acc (%),HMM+Viterbi Top-1 Acc (%),Strict 0s Pointwise Acc (%),Route Continuity (%),Inference Time (ms),Train Time (s)
+Untuned Baseline XGBoost,0.9264,0.9272,0.092,92.35,96.16,94.62,99.45,0.0003,7.03
+Bayesian Tuned XGBoost (Optuna TPE),0.9316,0.9423,0.0688,92.57,96.42,94.99,99.47,0.001,3.25
